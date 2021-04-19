@@ -40,6 +40,7 @@ app.get('/joke', async (req, res) => {
 })
 
 //MOVE ROUTE
+
 app.post('/move', async (req, res) => {
   try {
     const decodedToken = await decodeToken(req.headers.authorization);
@@ -54,6 +55,25 @@ app.post('/move', async (req, res) => {
     io.emit('move', emitMessage);
     res.status(200).json({
       message: 'Player ' + decodedToken.id + ' Moved succesfully!'
+    });
+  } catch {
+    res.status(400).json({
+      message: "Please double check your token"
+    })
+  }
+});
+
+app.post('/reset', async (req, res) => {
+  try {
+    const decodedToken = await decodeToken(req.headers.authorization);
+    let emitMessage = {
+      id: decodedToken.id,
+    };
+
+    await resetPlayerServerPosition(decodedToken.socketID);
+    io.emit('reset', emitMessage);
+    res.status(200).json({
+      message: 'Player ' + decodedToken.id + ' is returning to their default position!'
     });
   } catch {
     res.status(400).json({
@@ -85,7 +105,6 @@ app.post('/move-npc', async (req, res) => {
   io.emit('move-npc', emitMessage);
   res.send('ok')
 });
-
 
 // SEND MESSAGE ROUTE
 app.post('/send-message', async (req, res) => {
@@ -131,11 +150,11 @@ io.on('connection', async (socket) => {
 
     socket.emit('allplayers', allPlayers);
     socket.broadcast.emit('newplayer', socket.player);
-    if (NPCS.length > 0) {
-      socket.emit('allNpcs', NPCS);
-      socket.broadcast.emit('createNPC', NPCS);
+    // if (NPCS.length > 0) {
+    //   socket.emit('allNpcs', NPCS);
+    //   socket.broadcast.emit('createNPC', NPCS);
 
-    }
+    // }
     socket.on('disconnect', () => {
       io.emit('remove', socket.player.id);
     });
@@ -186,6 +205,15 @@ const updatePlayerServerPosition = async (player, direction, range) => {
     default:
       break;
   }
+};
+const resetPlayerServerPosition = async (player) => {
+  var connectedPlayer = io.sockets.connected[player];
+  if (connectedPlayer == null)
+    return;
+
+  connectedPlayer.player.x = 200
+  connectedPlayer.player.y = 300
+
 };
 
 

@@ -42,6 +42,18 @@ Client.socket.on('move', function (data) {
   Game.movePlayer(data.id, newPlayerPosition.x, newPlayerPosition.y);
 });
 
+Client.socket.on('reset', function (data) {
+
+  // let playerPosition = Game.getPlayerPosition(data.id),
+  //   newPlayerPosition = {
+  //     x: playerPosition.x,
+  //     y: playerPosition.y,
+  //   };
+
+
+  Game.movePlayer(data.id, 200, 300);
+});
+
 Client.socket.on('move-npc', function (data) {
   Game.playAnimation(data.id, data.direction);
 
