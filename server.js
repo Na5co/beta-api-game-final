@@ -75,6 +75,7 @@ app.post('/create-npc', async (req, res) => {
   res.send('NPC Created succesfully')
 });
 
+
 app.post('/move-npc', async (req, res) => {
 
   const emitMessage = {

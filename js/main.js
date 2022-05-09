@@ -3,6 +3,7 @@ var config = {
   width: 1100,
   height: 920,
   title: 'Postman Game',
+  parent: 'game',
   physics: {
     default: 'arcade',
     arcade: {
