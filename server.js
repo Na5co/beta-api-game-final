@@ -130,11 +130,13 @@ io.on('connection', async (socket) => {
     io.sockets.emit("position", playerPos)
   })
 
-  socket.on('newplayer', () => {
+  socket.on('newplayer', async () => {
+    const name = await generateName()
     socket.player = {
       id: server.lastPlayderID++,
       x: 200,
       y: 300,
+      name: name
     };
 
     let allPlayers = getAllPlayers()
@@ -151,6 +153,15 @@ io.on('connection', async (socket) => {
     });
   });
 });
+
+const generateName = async () => {
+  let name = await axios.get("https://random-word-api.herokuapp.com/word");
+
+  while (!name.data) {
+    name = await axios.get("https://random-word-api.herokuapp.com/word");
+  }
+  return name.data[0]
+}
 
 const getAllPlayers = () => {
   let players = [];
