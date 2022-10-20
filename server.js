@@ -76,7 +76,7 @@ app.post('/create-npc', async (req, res) => {
 });
 
 app.post('/move-npc', async (req, res) => {
-  console.log(req)
+
   const emitMessage = {
     steps: req.query.steps,
     id: req.query.id,
