@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const jwt_decode = require('jwt-decode');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const { connected } = require('process');
 
 require('dotenv').config();
 app.use('/css', express.static(__dirname + '/css'));
@@ -41,6 +42,7 @@ app.get('/joke', async (req, res) => {
 
 //MOVE ROUTE
 app.post('/move', async (req, res) => {
+  io.sockets.emit('allPlayersPos', getAllPlayers())
   try {
     const decodedToken = await decodeToken(req.headers.authorization);
     let emitMessage = {
@@ -49,7 +51,7 @@ app.post('/move', async (req, res) => {
       steps: req.query.steps,
       direction: req.query.direction
     };
-
+    // getPlayerServerPosition(decodedToken.socketID);
     await updatePlayerServerPosition(decodedToken.socketID, req.query.direction, req.query.steps,);
     io.emit('move', emitMessage);
     res.status(200).json({
@@ -120,6 +122,14 @@ io.on('connection', async (socket) => {
 
   io.to(socket.id).emit('private', message); // add secret code
 
+  socket.on('message', async function(data){
+    var decodedMessage = await decodeToken(data.token);
+    console.log(decodedMessage);
+    var playerPos = await getPlayerServerPosition(decodedMessage.socketID)
+    console.log("playerpos", playerPos)
+    io.sockets.emit("position", playerPos)
+  })
+
   socket.on('newplayer', () => {
     socket.player = {
       id: server.lastPlayderID++,
@@ -188,6 +198,15 @@ const updatePlayerServerPosition = async (player, direction, range) => {
   }
 };
 
+const getPlayerServerPosition = async (player) => {
+  var connectedPlayer = io.sockets.connected[player];
+  console.log(connectedPlayer);
+  var playerPos = {
+    "x": connectedPlayer.player.x,
+    "y": connectedPlayer.player.y
+  }
+  return playerPos;
+};
 
 const getJoke = async () => {
   let jokeResponse = await axios.get(process.env.JOKE_URL);
