@@ -22,7 +22,7 @@ Client.socket.on('newplayer', function (data) {
 
 Client.socket.on('move', function (data) {
   Game.playAnimation(data.id, data.direction);
-console.log("push")
+console.log("push2")
   let playerPosition = Game.getPlayerPosition(data.id),
     newPlayerPosition = {
       x: playerPosition.x,
